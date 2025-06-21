@@ -20,11 +20,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all leads
+  // Get all leads (for admin access)
   app.get("/api/leads", async (req, res) => {
     try {
       const leads = await storage.getLeads();
-      res.json(leads);
+      // Include calculations and consultations for each lead
+      const leadsWithDetails = await Promise.all(
+        leads.map(async (lead) => {
+          const calculations = await storage.getCalculationsByLeadId(lead.id);
+          const consultations = await storage.getConsultationsByLeadId(lead.id);
+          return {
+            ...lead,
+            calculations,
+            consultations,
+          };
+        })
+      );
+      res.json(leadsWithDetails);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch leads" });
     }

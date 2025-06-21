@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle } from "lucide-react";
@@ -21,6 +21,9 @@ export default function ExitIntentModal({ isOpen, onClose, onContinue }: ExitInt
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="sr-only">Solar Qualification Check</DialogTitle>
+        </DialogHeader>
         <div className="text-center space-y-6">
           <div className="bg-solar-orange text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-8 h-8" />

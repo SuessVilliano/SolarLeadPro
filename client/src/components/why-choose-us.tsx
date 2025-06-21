@@ -51,7 +51,7 @@ export default function WhyChooseUs() {
           <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6">
             Why Choose LIV8Solar?
           </h2>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-100 max-w-3xl mx-auto">
             We're not just another solar company. We're your trusted energy consultants, 
             backed by DOE's Project Hestia framework and committed to your success.
           </p>
@@ -69,7 +69,7 @@ export default function WhyChooseUs() {
                   <h3 className="font-poppins font-bold text-xl mb-4">
                     {diff.title}
                   </h3>
-                  <p className="text-blue-100">
+                  <p className="text-gray-100">
                     {diff.description}
                   </p>
                 </CardContent>

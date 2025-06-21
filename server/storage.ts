@@ -35,7 +35,14 @@ export class MemStorage implements IStorage {
   async createLead(insertLead: InsertLead): Promise<Lead> {
     const id = this.currentLeadId++;
     const lead: Lead = { 
-      ...insertLead, 
+      ...insertLead,
+      address: insertLead.address || null,
+      monthlyBill: insertLead.monthlyBill || null,
+      homeSize: insertLead.homeSize || null,
+      roofType: insertLead.roofType || null,
+      energyGoals: insertLead.energyGoals || null,
+      leadSource: insertLead.leadSource || null,
+      status: insertLead.status || null,
       id,
       createdAt: new Date(),
     };
@@ -55,6 +62,11 @@ export class MemStorage implements IStorage {
     const id = this.currentCalculationId++;
     const calculation: SolarCalculation = {
       ...insertCalculation,
+      leadId: insertCalculation.leadId || null,
+      monthlySavings: insertCalculation.monthlySavings || null,
+      yearOneSavings: insertCalculation.yearOneSavings || null,
+      twentyYearSavings: insertCalculation.twentyYearSavings || null,
+      systemSize: insertCalculation.systemSize || null,
       id,
       createdAt: new Date(),
     };
@@ -72,6 +84,10 @@ export class MemStorage implements IStorage {
     const id = this.currentConsultationId++;
     const consultation: Consultation = {
       ...insertConsultation,
+      leadId: insertConsultation.leadId || null,
+      scheduledDate: insertConsultation.scheduledDate || null,
+      status: insertConsultation.status || null,
+      notes: insertConsultation.notes || null,
       id,
       createdAt: new Date(),
     };

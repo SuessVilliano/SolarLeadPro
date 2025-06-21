@@ -59,28 +59,28 @@ export default function HowItWorks() {
         </div>
 
         <Card className="bg-gradient-to-r from-solar-blue to-solar-teal text-white p-8 max-w-4xl mx-auto">
-          <h3 className="font-poppins font-bold text-2xl mb-6 text-center">
+          <h3 className="font-poppins font-bold text-2xl mb-6 text-center text-white">
             Project Hestia Benefits
           </h3>
           <div className="grid md:grid-cols-3 gap-6 text-center">
             <div>
-              <div className="text-3xl text-solar-turquoise mb-2">💰</div>
-              <div className="font-semibold">Government Funding</div>
-              <div className="text-sm text-blue-100">
+              <div className="text-3xl text-yellow-300 mb-2">💰</div>
+              <div className="font-semibold text-white">Government Funding</div>
+              <div className="text-sm text-gray-100">
                 Qualify for federal assistance
               </div>
             </div>
             <div>
-              <div className="text-3xl text-solar-turquoise mb-2">%</div>
-              <div className="font-semibold">Heavy Discounts</div>
-              <div className="text-sm text-blue-100">
+              <div className="text-3xl text-yellow-300 mb-2">%</div>
+              <div className="font-semibold text-white">Heavy Discounts</div>
+              <div className="text-sm text-gray-100">
                 Up to 30% tax credits available
               </div>
             </div>
             <div>
-              <div className="text-3xl text-solar-turquoise mb-2">⚡</div>
-              <div className="font-semibold">Immediate Savings</div>
-              <div className="text-sm text-blue-100">
+              <div className="text-3xl text-yellow-300 mb-2">⚡</div>
+              <div className="font-semibold text-white">Immediate Savings</div>
+              <div className="text-sm text-gray-100">
                 Start saving from day one
               </div>
             </div>

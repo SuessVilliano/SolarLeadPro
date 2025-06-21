@@ -79,7 +79,7 @@ export default function ContactSection() {
           <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6">
             Ready to Go Solar?
           </h2>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-100 max-w-3xl mx-auto">
             Join hundreds of Florida homeowners saving thousands with Project Hestia. 
             Get your free consultation today.
           </p>
