@@ -191,7 +191,7 @@ export default function ContactSection() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white">Email Address</FormLabel>
+                        <FormLabel className="text-black">Email Address</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -210,7 +210,7 @@ export default function ContactSection() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white">Phone Number</FormLabel>
+                        <FormLabel className="text-black">Phone Number</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -229,7 +229,7 @@ export default function ContactSection() {
                     name="energyGoals"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-white">Tell us about your energy goals...</FormLabel>
+                        <FormLabel className="text-black">Tell us about your energy goals...</FormLabel>
                         <FormControl>
                           <Textarea
                             {...field}
