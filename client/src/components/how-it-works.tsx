@@ -58,29 +58,29 @@ export default function HowItWorks() {
           })}
         </div>
 
-        <Card className="bg-gradient-to-r from-solar-blue to-solar-teal text-white p-8 max-w-4xl mx-auto">
-          <h3 className="font-poppins font-bold text-2xl mb-6 text-center text-white">
+        <Card className="bg-white border-2 border-gray-200 p-8 max-w-4xl mx-auto">
+          <h3 className="font-poppins font-bold text-2xl mb-6 text-center text-black">
             Project Hestia Benefits
           </h3>
           <div className="grid md:grid-cols-3 gap-6 text-center">
             <div>
-              <div className="text-3xl text-yellow-300 mb-2">💰</div>
-              <div className="font-semibold text-white">Government Funding</div>
-              <div className="text-sm text-gray-100">
+              <div className="text-3xl text-yellow-600 mb-2">💰</div>
+              <div className="font-semibold text-black">Government Funding</div>
+              <div className="text-sm text-black">
                 Qualify for federal assistance
               </div>
             </div>
             <div>
-              <div className="text-3xl text-yellow-300 mb-2">%</div>
-              <div className="font-semibold text-white">Heavy Discounts</div>
-              <div className="text-sm text-gray-100">
+              <div className="text-3xl text-yellow-600 mb-2">%</div>
+              <div className="font-semibold text-black">Heavy Discounts</div>
+              <div className="text-sm text-black">
                 Up to 30% tax credits available
               </div>
             </div>
             <div>
-              <div className="text-3xl text-yellow-300 mb-2">⚡</div>
-              <div className="font-semibold text-white">Immediate Savings</div>
-              <div className="text-sm text-gray-100">
+              <div className="text-3xl text-yellow-600 mb-2">⚡</div>
+              <div className="font-semibold text-black">Immediate Savings</div>
+              <div className="text-sm text-black">
                 Start saving from day one
               </div>
             </div>

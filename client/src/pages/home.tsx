@@ -6,6 +6,7 @@ import SolarCalculator from "@/components/solar-calculator";
 import ServicesOverview from "@/components/services-overview";
 import WhyChooseUs from "@/components/why-choose-us";
 import Testimonials from "@/components/testimonials";
+import SolarRepOpportunity from "@/components/solar-rep-opportunity";
 import ContactSection from "@/components/contact-section";
 import Footer from "@/components/footer";
 import QualificationModal from "@/components/qualification-modal";

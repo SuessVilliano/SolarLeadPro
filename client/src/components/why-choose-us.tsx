@@ -45,13 +45,13 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-solar-blue to-solar-teal text-white">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6">
+          <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6 text-black">
             Why Choose LIV8Solar?
           </h2>
-          <p className="text-xl text-gray-100 max-w-3xl mx-auto">
+          <p className="text-xl text-black max-w-3xl mx-auto">
             We're not just another solar company. We're your trusted energy consultants, 
             backed by DOE's Project Hestia framework and committed to your success.
           </p>
@@ -61,15 +61,15 @@ export default function WhyChooseUs() {
           {differentiators.map((diff, index) => {
             const IconComponent = diff.icon;
             return (
-              <Card key={index} className="bg-white bg-opacity-10 hover:bg-opacity-20 transition-all border-none text-white">
+              <Card key={index} className="bg-gray-50 hover:bg-gray-100 transition-all border border-gray-200">
                 <CardContent className="p-8 text-center">
                   <div className="bg-solar-turquoise text-solar-blue rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
                     <IconComponent className="w-8 h-8" />
                   </div>
-                  <h3 className="font-poppins font-bold text-xl mb-4">
+                  <h3 className="font-poppins font-bold text-xl mb-4 text-black">
                     {diff.title}
                   </h3>
-                  <p className="text-gray-100">
+                  <p className="text-black">
                     {diff.description}
                   </p>
                 </CardContent>
