@@ -38,7 +38,7 @@ export default function HowItWorks() {
             How It Works
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Simple 5-step process to get you qualified for solar with{" "}
+            Simple 5-step process to get you qualified for solar nationwide with{" "}
             <strong>Project Hestia</strong> government funding
           </p>
         </div>

@@ -39,8 +39,8 @@ export default function WhyChooseUs() {
     },
     {
       icon: MapPin,
-      title: "Local Florida Expertise",
-      description: "Based in Tampa Bay, we understand Florida's unique solar landscape, regulations, and weather considerations. Local knowledge, personalized service."
+      title: "Nationwide Network Excellence",
+      description: "Connected to top installers, leading panel manufacturers, and premium battery companies across all 50 states. National expertise, local execution."
     }
   ];
 

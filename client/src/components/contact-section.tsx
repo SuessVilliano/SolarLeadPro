@@ -80,7 +80,7 @@ export default function ContactSection() {
             Ready to Go Solar?
           </h2>
           <p className="text-xl text-gray-100 max-w-3xl mx-auto">
-            Join hundreds of Florida homeowners saving thousands with Project Hestia. 
+            Join thousands of homeowners nationwide saving thousands with Project Hestia. 
             Get your free consultation today.
           </p>
         </div>
@@ -124,7 +124,7 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <div className="font-semibold text-lg text-white">Service Area</div>
-                  <div className="text-xl text-white">Tampa Bay & Central Florida</div>
+                  <div className="text-xl text-white">All 50 States - Nationwide Coverage</div>
                 </div>
               </div>
 

@@ -5,19 +5,19 @@ export default function Testimonials() {
   const testimonials = [
     {
       name: "Mike Rodriguez",
-      location: "Tampa, FL",
+      location: "Phoenix, AZ",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
       testimonial: "Since going solar with LIV8Solar, I've saved $150/month with zero down. The Project Hestia funding made it possible for our family to go green without breaking the bank."
     },
     {
       name: "Sarah Chen",
-      location: "Orlando, FL",
+      location: "Austin, TX",
       image: "https://images.unsplash.com/photo-1494790108755-2616b332c5ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
       testimonial: "The team at LIV8Solar made the whole process seamless. From qualification to installation, they handled everything. Our energy bill is now practically $0!"
     },
     {
       name: "David Thompson",
-      location: "Jacksonville, FL",
+      location: "Denver, CO",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150",
       testimonial: "LIV8Solar's expertise in off-grid systems helped us achieve energy independence for our cabin. Professional, knowledgeable, and always available for questions."
     }
