@@ -136,6 +136,9 @@ export default function Footer() {
             <a href="#" className="hover:text-solar-turquoise transition-colors">
               Licensing
             </a>
+            <a href="/admin" className="hover:text-solar-turquoise transition-colors">
+              Admin Dashboard
+            </a>
           </div>
         </div>
       </div>

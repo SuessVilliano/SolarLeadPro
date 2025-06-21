@@ -10,8 +10,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const leadData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(leadData);
+      
+      // Log the new lead submission for tracking
+      console.log("🌟 NEW LEAD SUBMITTED:", {
+        id: lead.id,
+        name: `${lead.firstName} ${lead.lastName}`,
+        email: lead.email,
+        phone: lead.phone,
+        source: lead.leadSource,
+        timestamp: new Date().toISOString(),
+      });
+      
       res.json(lead);
     } catch (error) {
+      console.error("Failed to create lead:", error);
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid lead data", errors: error.errors });
       } else {
@@ -81,8 +93,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const calculation = await storage.createSolarCalculation(calculationWithResults);
+      
+      // Log the solar calculation for tracking
+      console.log("💡 SOLAR CALCULATION PERFORMED:", {
+        id: calculation.id,
+        monthlyBill: monthlyBill,
+        monthlySavings: monthlySavings,
+        yearOneSavings: yearOneSavings,
+        systemSize: systemSize,
+        timestamp: new Date().toISOString(),
+      });
+      
       res.json(calculation);
     } catch (error) {
+      console.error("Failed to create solar calculation:", error);
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid calculation data", errors: error.errors });
       } else {
@@ -96,8 +120,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const consultationData = insertConsultationSchema.parse(req.body);
       const consultation = await storage.createConsultation(consultationData);
+      
+      // Log the consultation request for tracking
+      console.log("📅 CONSULTATION SCHEDULED:", {
+        id: consultation.id,
+        leadId: consultation.leadId,
+        status: consultation.status,
+        notes: consultation.notes,
+        timestamp: new Date().toISOString(),
+      });
+      
       res.json(consultation);
     } catch (error) {
+      console.error("Failed to schedule consultation:", error);
       if (error instanceof z.ZodError) {
         res.status(400).json({ message: "Invalid consultation data", errors: error.errors });
       } else {
