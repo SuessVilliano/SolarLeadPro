@@ -159,7 +159,7 @@ export default function ContactSection() {
                             <Input
                               {...field}
                               placeholder="First Name"
-                              className="bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder:text-blue-200 focus:ring-solar-turquoise focus:border-transparent"
+                              className="bg-white bg-opacity-90 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-solar-turquoise focus:border-solar-turquoise"
                             />
                           </FormControl>
                           <FormMessage />
@@ -177,7 +177,7 @@ export default function ContactSection() {
                             <Input
                               {...field}
                               placeholder="Last Name"
-                              className="bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder:text-blue-200 focus:ring-solar-turquoise focus:border-transparent"
+                              className="bg-white bg-opacity-90 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-solar-turquoise focus:border-solar-turquoise"
                             />
                           </FormControl>
                           <FormMessage />

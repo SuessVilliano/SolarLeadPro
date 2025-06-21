@@ -8,8 +8,8 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onOpenQualification, onScrollToCalculator }: HeroSectionProps) {
   return (
-    <section className="relative bg-gradient-to-br from-solar-blue to-solar-teal text-white py-20 lg:py-32 overflow-hidden">
-      <div className="absolute inset-0 bg-black opacity-10"></div>
+    <section className="relative bg-gradient-to-br from-gray-900 via-solar-blue to-solar-teal text-white py-20 lg:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-black opacity-20"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -19,9 +19,9 @@ export default function HeroSection({ onOpenQualification, onScrollToCalculator 
                 Solar, Storage & Off-Grid Solutions
               </span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-blue-100">
+            <p className="text-xl lg:text-2xl mb-8 text-gray-100">
               Get qualified for $0 down solar installation through DOE's Project Hestia.{" "}
-              <strong>Government funding available</strong> for eligible homeowners.
+              <strong className="text-white">Government funding available</strong> for eligible homeowners.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -44,7 +44,7 @@ export default function HeroSection({ onOpenQualification, onScrollToCalculator 
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 text-blue-100">
+            <div className="flex flex-wrap items-center gap-6 text-gray-100">
               <div className="flex items-center">
                 <Star className="w-5 h-5 text-yellow-400 mr-1" />
                 <span className="font-semibold">4.9/5 Rating</span>
