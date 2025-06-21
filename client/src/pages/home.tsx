@@ -52,6 +52,7 @@ export default function Home() {
       <ServicesOverview />
       <WhyChooseUs />
       <Testimonials />
+      <SolarRepOpportunity />
       <ContactSection />
       <Footer />
       

@@ -93,10 +93,10 @@ export default function ContactSection() {
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg">Call Us Now</div>
+                  <div className="font-semibold text-lg text-white">Call Us Now</div>
                   <a
                     href="tel:813-441-9686"
-                    className="text-2xl font-bold hover:text-solar-turquoise transition-colors"
+                    className="text-2xl font-bold text-white hover:text-solar-turquoise transition-colors"
                   >
                     813-441-9686
                   </a>
@@ -108,10 +108,10 @@ export default function ContactSection() {
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg">Email Us</div>
+                  <div className="font-semibold text-lg text-white">Email Us</div>
                   <a
                     href="mailto:info@liv8solar.com"
-                    className="text-xl hover:text-solar-turquoise transition-colors"
+                    className="text-xl text-white hover:text-solar-turquoise transition-colors"
                   >
                     info@liv8solar.com
                   </a>
@@ -123,8 +123,8 @@ export default function ContactSection() {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg">Service Area</div>
-                  <div className="text-xl">Tampa Bay & Central Florida</div>
+                  <div className="font-semibold text-lg text-white">Service Area</div>
+                  <div className="text-xl text-white">Tampa Bay & Central Florida</div>
                 </div>
               </div>
 
@@ -133,8 +133,8 @@ export default function ContactSection() {
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg">Business Hours</div>
-                  <div className="text-xl">Mon-Fri: 8AM-6PM | Sat: 9AM-4PM</div>
+                  <div className="font-semibold text-lg text-white">Business Hours</div>
+                  <div className="text-xl text-white">Mon-Fri: 8AM-6PM | Sat: 9AM-4PM</div>
                 </div>
               </div>
             </div>
