@@ -197,7 +197,7 @@ export default function ContactSection() {
                             {...field}
                             type="email"
                             placeholder="Email Address"
-                            className="bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder:text-blue-200 focus:ring-solar-turquoise focus:border-transparent"
+                            className="bg-white bg-opacity-90 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-solar-turquoise focus:border-solar-turquoise"
                           />
                         </FormControl>
                         <FormMessage />
@@ -216,7 +216,7 @@ export default function ContactSection() {
                             {...field}
                             type="tel"
                             placeholder="Phone Number"
-                            className="bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder:text-blue-200 focus:ring-solar-turquoise focus:border-transparent"
+                            className="bg-white bg-opacity-90 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-solar-turquoise focus:border-solar-turquoise"
                           />
                         </FormControl>
                         <FormMessage />
@@ -235,7 +235,7 @@ export default function ContactSection() {
                             {...field}
                             placeholder="Tell us about your energy goals..."
                             rows={4}
-                            className="bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder:text-blue-200 focus:ring-solar-turquoise focus:border-transparent resize-none"
+                            className="bg-white bg-opacity-90 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-solar-turquoise focus:border-solar-turquoise resize-none"
                           />
                         </FormControl>
                         <FormMessage />
