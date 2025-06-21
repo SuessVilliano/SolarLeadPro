@@ -140,9 +140,9 @@ export default function ContactSection() {
             </div>
           </div>
 
-          <Card className="bg-white bg-opacity-10 border-none text-white">
+          <Card className="bg-white border border-gray-200">
             <CardContent className="p-8">
-              <h3 className="font-poppins font-bold text-2xl mb-6 text-center">
+              <h3 className="font-poppins font-bold text-2xl mb-6 text-center text-black">
                 Get Your Free Consultation
               </h3>
 
@@ -154,7 +154,7 @@ export default function ContactSection() {
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white">First Name</FormLabel>
+                          <FormLabel className="text-black">First Name</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -172,7 +172,7 @@ export default function ContactSection() {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white">Last Name</FormLabel>
+                          <FormLabel className="text-black">Last Name</FormLabel>
                           <FormControl>
                             <Input
                               {...field}

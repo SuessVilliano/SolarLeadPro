@@ -48,13 +48,13 @@ export default function SolarRepOpportunity() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-solar-teal to-solar-blue text-white">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6">
+          <h2 className="font-poppins font-bold text-4xl lg:text-5xl mb-6 text-black">
             Join Our Solar Team
           </h2>
-          <p className="text-xl text-gray-100 max-w-3xl mx-auto">
+          <p className="text-xl text-black max-w-3xl mx-auto">
             Looking for a rewarding career in the fastest-growing energy sector? 
             Our team is always expanding across all 50 states.
           </p>
@@ -64,15 +64,15 @@ export default function SolarRepOpportunity() {
           {benefits.map((benefit, index) => {
             const IconComponent = benefit.icon;
             return (
-              <Card key={index} className="bg-white bg-opacity-10 hover:bg-opacity-20 transition-all border-none text-white">
+              <Card key={index} className="bg-gray-50 hover:bg-gray-100 transition-all border border-gray-200">
                 <CardContent className="p-8 text-center">
                   <div className="bg-solar-orange text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
                     <IconComponent className="w-8 h-8" />
                   </div>
-                  <h3 className="font-poppins font-bold text-xl mb-4">
+                  <h3 className="font-poppins font-bold text-xl mb-4 text-black">
                     {benefit.title}
                   </h3>
-                  <p className="text-gray-100">
+                  <p className="text-black">
                     {benefit.description}
                   </p>
                 </CardContent>
@@ -82,11 +82,11 @@ export default function SolarRepOpportunity() {
         </div>
 
         <div className="text-center space-y-6">
-          <div className="bg-white bg-opacity-10 rounded-lg p-8 max-w-3xl mx-auto">
-            <h3 className="font-poppins font-bold text-2xl mb-4">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 max-w-3xl mx-auto">
+            <h3 className="font-poppins font-bold text-2xl mb-4 text-black">
               Ready to Start Your Solar Career?
             </h3>
-            <p className="text-gray-100 mb-6">
+            <p className="text-black mb-6">
               No experience? No problem. No license? We've got you covered. 
               Just bring your passion for helping families and we'll provide the rest.
             </p>
@@ -100,7 +100,7 @@ export default function SolarRepOpportunity() {
             </Button>
           </div>
           
-          <p className="text-sm text-gray-200">
+          <p className="text-sm text-gray-600">
             Equal opportunity employer - all backgrounds welcome
           </p>
         </div>
