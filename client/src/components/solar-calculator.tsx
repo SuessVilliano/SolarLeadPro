@@ -224,8 +224,8 @@ export default function SolarCalculator() {
                 <Card className="mt-8 bg-gradient-to-r from-solar-blue to-solar-teal border-2 border-solar-turquoise">
                   <CardContent className="p-6">
                     <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold text-white mb-2">🎉 Your Solar Savings Estimate</h3>
-                      <p className="text-solar-turquoise font-medium">Based on your inputs, here's what you could save:</p>
+                      <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-xl bg-black/30 px-4 py-2 rounded-lg">🎉 Your Solar Savings Estimate</h3>
+                      <p className="text-white font-medium bg-black/20 px-3 py-1 rounded">Based on your inputs, here's what you could save:</p>
                     </div>
                     <div className="grid grid-cols-2 gap-6 text-center">
                       <div className="bg-black/40 backdrop-blur rounded-lg p-4 border border-solar-turquoise/50">

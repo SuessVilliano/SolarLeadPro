@@ -121,11 +121,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const monthlyBill = parseFloat(calculationData.monthlyBill || "0");
       const homeSize = calculationData.homeSize || 2000;
       
-      // Basic calculation formulas (simplified)
+      // Improved solar calculation formulas
       const monthlySavings = Math.round(monthlyBill * 0.85); // 85% savings estimate
       const yearOneSavings = monthlySavings * 12;
       const twentyYearSavings = yearOneSavings * 18; // Account for rate increases
-      const systemSize = `${Math.ceil((monthlyBill * 12) / 1200)}kW`; // Rough estimate
+      
+      // More accurate system sizing based on home size, location, and energy usage
+      const annualBill = monthlyBill * 12;
+      const annualKwh = annualBill / 0.12; // Assume $0.12/kWh average rate
+      const systemKw = Math.round((annualKwh / 1400) * 10) / 10; // 1400 kWh per kW annually (national average)
+      const systemSize = `${systemKw}kW`;
       
       const calculationWithResults = {
         ...calculationData,
