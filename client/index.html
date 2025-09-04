@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <!-- Push Lap Affiliate Tracking -->
+    <script 
+      src="https://pushlapgrowth.com/affiliate-tracker.js" 
+      data-affiliate data-program-id="9acd7ded-50dc-4b98-b698-c78edc0481b3" 
+      async>
+    </script>
     <title>LIV8Solar - Smart Energy Consulting | Solar, Storage & Off-Grid Solutions</title>
     <meta name="description" content="Florida's leading solar consultant. Get qualified for $0 down solar installation through DOE Project Hestia. Free design, government funding available." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,5 +28,45 @@
       js.src = 'https://api.anychat.one/widget/b7dd7318-c52c-31a9-ba39-b0b2955633af?r=' + encodeURIComponent(window.location);
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'contactus-jssdk'));</script>
+    
+    <!-- Push Lap Form Tracking -->
+    <script>
+      (function () {
+        function findEmailAndName(form) {
+          const emailInput = form.querySelector('input[type="email"], input[name*="email" i]');
+          const nameInput = form.querySelector('input[name*="name" i]');
+    
+          const email = emailInput ? emailInput.value.trim() : null;
+          const name = nameInput ? nameInput.value.trim() : null;
+    
+          return { email, name };
+        }
+    
+        function handleFormSubmit(event) {
+          const form = event.target;
+          const { email, name } = findEmailAndName(form);
+    
+          if (email && typeof createPushLapEmail === "function") {
+            window.createPushLapEmail(email, name || undefined);
+          }
+        }
+    
+        function attachListeners() {
+          const forms = document.querySelectorAll('form');
+    
+          forms.forEach((form) => {
+            if (!form.dataset.pushlapBound) {
+              form.addEventListener('submit', handleFormSubmit);
+              form.dataset.pushlapBound = 'true';
+            }
+          });
+        }
+    
+        attachListeners();
+    
+        const observer = new MutationObserver(() => attachListeners());
+        observer.observe(document.body, { childList: true, subtree: true });
+      })();
+    </script>
   </body>
 </html>
