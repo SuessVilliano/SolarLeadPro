@@ -27,13 +27,21 @@ class PushLapAPI {
 
   async trackReferral(referralData: PushLapReferral): Promise<any> {
     try {
+      // Get affiliate ID from various sources (URL params, cookies, global var)
+      let affiliateId = referralData.affiliateId;
+      
+      if (!affiliateId && typeof globalThis !== 'undefined') {
+        // Try to get from global variables or request context
+        affiliateId = (globalThis as any)?.affiliateId || (globalThis as any)?.ref;
+      }
+      
       const body = {
-        affiliateId: referralData.affiliateId || (typeof window !== 'undefined' ? (window as any)?.affiliateId : undefined),
+        affiliateId: affiliateId,
         name: referralData.name,
         email: referralData.email,
         referredUserExternalId: referralData.referredUserExternalId,
-        plan: referralData.plan,
-        status: referralData.status,
+        plan: referralData.plan || 'solar_lead',
+        status: referralData.status || 'new_referral',
       };
 
       const options = {
@@ -64,11 +72,11 @@ class PushLapAPI {
   async trackSale(saleData: PushLapSale): Promise<any> {
     try {
       const body = {
-        referralId: saleData.referralId,
+        referralId: saleData.referralId, // This should be the email or ID from the original referral
         externalId: saleData.externalId,
         externalInvoiceId: saleData.externalInvoiceId,
         totalEarned: saleData.totalEarned,
-        commissionRate: saleData.commissionRate,
+        commissionRate: saleData.commissionRate || 0.10, // Default 10% commission
       };
 
       const options = {
@@ -111,6 +119,43 @@ export function getPushLapAPI(): PushLapAPI | null {
   }
   
   return pushLapAPI;
+}
+
+// Helper function to track project completion/sale
+export async function trackProjectSale(
+  leadEmail: string,
+  projectValue: number,
+  projectId: string
+): Promise<boolean> {
+  const pushLapAPI = getPushLapAPI();
+  if (!pushLapAPI) return false;
+  
+  const result = await pushLapAPI.trackSale({
+    referralId: leadEmail, // Use lead email as referral identifier
+    externalId: projectId,
+    externalInvoiceId: `INV-${projectId}`,
+    totalEarned: projectValue,
+    commissionRate: 0.10, // 10% commission rate
+  });
+  
+  return result !== null;
+}
+
+// Helper function to extract affiliate ID from request headers or params
+export function extractAffiliateId(req: any): string | undefined {
+  // Check URL params first
+  const urlAffiliate = req.query?.ref || req.query?.affiliate || req.query?.affiliateId;
+  if (urlAffiliate) return urlAffiliate;
+  
+  // Check request headers
+  const headerAffiliate = req.headers['x-affiliate-id'] || req.headers['affiliate-id'];
+  if (headerAffiliate) return headerAffiliate;
+  
+  // Check cookies
+  const cookieAffiliate = req.cookies?.affiliateId || req.cookies?.ref;
+  if (cookieAffiliate) return cookieAffiliate;
+  
+  return undefined;
 }
 
 export { PushLapAPI, type PushLapReferral, type PushLapSale };

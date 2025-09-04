@@ -101,22 +101,22 @@ export default function Footer() {
 
           <div>
             <h4 className="font-semibold text-lg mb-4">Contact</h4>
-            <ul className="space-y-2 text-gray-400">
+            <ul className="space-y-2">
               <li className="flex items-center">
-                <Phone className="w-4 h-4 mr-2" />
-                <a href="tel:813-441-9686" className="hover:text-solar-turquoise transition-colors">
+                <Phone className="w-4 h-4 mr-2 text-solar-turquoise" />
+                <a href="tel:813-441-9686" className="text-white font-medium hover:text-solar-turquoise transition-colors">
                   813-441-9686
                 </a>
               </li>
               <li className="flex items-center">
-                <Mail className="w-4 h-4 mr-2" />
-                <a href="mailto:info@liv8solar.com" className="hover:text-solar-turquoise transition-colors">
+                <Mail className="w-4 h-4 mr-2 text-solar-turquoise" />
+                <a href="mailto:info@liv8solar.com" className="text-white font-medium hover:text-solar-turquoise transition-colors">
                   info@liv8solar.com
                 </a>
               </li>
               <li className="flex items-start">
-                <MapPin className="w-4 h-4 mr-2 mt-1 flex-shrink-0" />
-                <span>Tampa Bay & Central Florida</span>
+                <MapPin className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-solar-turquoise" />
+                <span className="text-white font-medium">All 50 States - Nationwide Coverage</span>
               </li>
             </ul>
           </div>

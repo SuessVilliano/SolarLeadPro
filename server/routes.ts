@@ -3,8 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertLeadSchema, insertSolarCalculationSchema, insertConsultationSchema } from "@shared/schema";
 import { sendEmail, emailTemplates } from "./sendgrid";
-import { getPushLapAPI } from "./pushLap";
+import { getPushLapAPI, extractAffiliateId, trackProjectSale } from "./pushLap";
 import { sendToGoogleSheets, formatLeadForGoogleSheets } from "./googleSheets";
+import { sendToTaskMagic, formatLeadForTaskMagic } from "./taskMagicWebhook";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -34,21 +35,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         text: emailTemplate.text,
       });
       
-      // Track Push Lap referral
+      // Track Push Lap referral with affiliate ID from request
       const pushLapAPI = getPushLapAPI();
       if (pushLapAPI) {
+        const affiliateId = extractAffiliateId(req);
         await pushLapAPI.trackReferral({
+          affiliateId: affiliateId,
           name: `${lead.firstName} ${lead.lastName}`,
           email: lead.email,
           referredUserExternalId: lead.id.toString(),
           plan: 'solar_lead',
-          status: 'new',
+          status: 'new_referral',
+        });
+        
+        // Log referral attempt for debugging
+        console.log('🔗 Push Lap referral tracked:', {
+          affiliateId,
+          leadEmail: lead.email,
+          leadId: lead.id
         });
       }
       
       // Send to Google Sheets
       const sheetsData = formatLeadForGoogleSheets(lead);
       await sendToGoogleSheets(sheetsData);
+      
+      // Send to TaskMagic webhook
+      const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
+      await sendToTaskMagic(taskMagicData);
       
       res.json(lead);
     } catch (error) {
@@ -143,6 +157,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         text: emailTemplate.text,
       });
       
+      // Send calculation to TaskMagic webhook
+      const taskMagicCalcData = formatLeadForTaskMagic({ id: 0, firstName: 'Anonymous', lastName: 'User', email: 'unknown@email.com', phone: 'unknown', createdAt: new Date().toISOString() }, 'solar_calculation', calculation);
+      await sendToTaskMagic(taskMagicCalcData);
+      
       res.json(calculation);
     } catch (error) {
       console.error("Failed to create solar calculation:", error);
@@ -182,6 +200,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           html: emailTemplate.html,
           text: emailTemplate.text,
         });
+        
+        // Send consultation to TaskMagic webhook
+        const taskMagicConsultData = formatLeadForTaskMagic(lead, 'consultation_scheduled', null);
+        await sendToTaskMagic(taskMagicConsultData);
       }
       
       res.json(consultation);
@@ -312,6 +334,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updates);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch installation updates' });
+    }
+  });
+
+  // Project sale tracking for Push Lap payouts
+  app.post('/api/projects/:id/complete', async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.id);
+      const { totalValue } = req.body;
+      
+      const project = await storage.updateProject(projectId, {
+        installationStatus: 'completed',
+        installationProgress: 100,
+        actualCompletionDate: new Date(),
+      });
+      
+      if (!project) {
+        res.status(404).json({ message: 'Project not found' });
+        return;
+      }
+      
+      // Get the lead associated with this project for Push Lap tracking
+      const lead = project.leadId ? await storage.getLeadById(project.leadId) : null;
+      
+      if (lead && totalValue) {
+        // Track the sale/completion for affiliate payout
+        const saleTracked = await trackProjectSale(
+          lead.email,
+          totalValue,
+          projectId.toString()
+        );
+        
+        console.log('💰 Project completion tracked for affiliate payout:', {
+          projectId,
+          leadEmail: lead.email,
+          totalValue,
+          saleTracked
+        });
+      }
+      
+      res.json({ message: 'Project marked as complete', project });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to complete project' });
     }
   });
 
