@@ -228,29 +228,29 @@ export default function SolarCalculator() {
                       <p className="text-solar-turquoise font-medium">Based on your inputs, here's what you could save:</p>
                     </div>
                     <div className="grid grid-cols-2 gap-6 text-center">
-                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                        <div className="text-4xl font-bold text-white mb-2">
+                      <div className="bg-black/40 backdrop-blur rounded-lg p-4 border border-solar-turquoise/50">
+                        <div className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
                           ${calculationResults.monthlySavings}
                         </div>
-                        <div className="text-sm font-medium text-solar-turquoise">Monthly Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise bg-black/20 px-2 py-1 rounded">Monthly Savings</div>
                       </div>
-                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                        <div className="text-4xl font-bold text-white mb-2">
+                      <div className="bg-black/40 backdrop-blur rounded-lg p-4 border border-solar-turquoise/50">
+                        <div className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
                           ${calculationResults.yearOneSavings}
                         </div>
-                        <div className="text-sm font-medium text-solar-turquoise">First Year Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise bg-black/20 px-2 py-1 rounded">First Year Savings</div>
                       </div>
-                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                        <div className="text-4xl font-bold text-white mb-2">
+                      <div className="bg-black/40 backdrop-blur rounded-lg p-4 border border-solar-turquoise/50">
+                        <div className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
                           ${calculationResults.twentyYearSavings}
                         </div>
-                        <div className="text-sm font-medium text-solar-turquoise">20-Year Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise bg-black/20 px-2 py-1 rounded">20-Year Savings</div>
                       </div>
-                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                        <div className="text-4xl font-bold text-white mb-2">
+                      <div className="bg-black/40 backdrop-blur rounded-lg p-4 border border-solar-turquoise/50">
+                        <div className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
                           {calculationResults.systemSize}
                         </div>
-                        <div className="text-sm font-medium text-solar-turquoise">Recommended Size</div>
+                        <div className="text-sm font-medium text-solar-turquoise bg-black/20 px-2 py-1 rounded">Recommended Size</div>
                       </div>
                     </div>
                     <div className="mt-6 text-center">
