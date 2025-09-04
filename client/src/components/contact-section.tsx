@@ -91,53 +91,53 @@ export default function ContactSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <div className="space-y-8">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-sm rounded-lg p-4">
                 <div className="bg-solar-turquoise text-solar-blue rounded-full p-3 flex-shrink-0">
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg text-white">Call Us Now</div>
+                  <div className="font-semibold text-lg text-white drop-shadow-lg">Call Us Now</div>
                   <a
                     href="tel:813-441-9686"
-                    className="text-2xl font-bold text-white hover:text-solar-turquoise transition-colors"
+                    className="text-2xl font-bold text-white hover:text-solar-turquoise transition-colors drop-shadow-lg"
                   >
                     813-441-9686
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-sm rounded-lg p-4">
                 <div className="bg-solar-turquoise text-solar-blue rounded-full p-3 flex-shrink-0">
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg text-white">Email Us</div>
+                  <div className="font-semibold text-lg text-white drop-shadow-lg">Email Us</div>
                   <a
                     href="mailto:info@liv8solar.com"
-                    className="text-xl text-white hover:text-solar-turquoise transition-colors"
+                    className="text-xl text-white hover:text-solar-turquoise transition-colors drop-shadow-lg"
                   >
                     info@liv8solar.com
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-sm rounded-lg p-4">
                 <div className="bg-solar-turquoise text-solar-blue rounded-full p-3 flex-shrink-0">
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg text-white">Service Area</div>
-                  <div className="text-xl text-white">All 50 States - Nationwide Coverage</div>
+                  <div className="font-semibold text-lg text-white drop-shadow-lg">Service Area</div>
+                  <div className="text-xl text-white drop-shadow-lg">All 50 States - Nationwide Coverage</div>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 bg-black/20 backdrop-blur-sm rounded-lg p-4">
                 <div className="bg-solar-turquoise text-solar-blue rounded-full p-3 flex-shrink-0">
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <div className="font-semibold text-lg text-white">Business Hours</div>
-                  <div className="text-xl text-white">Mon-Fri: 8AM-6PM | Sat: 9AM-4PM</div>
+                  <div className="font-semibold text-lg text-white drop-shadow-lg">Business Hours</div>
+                  <div className="text-xl text-white drop-shadow-lg">Mon-Fri: 8AM-6PM | Sat: 9AM-4PM</div>
                 </div>
               </div>
             </div>
