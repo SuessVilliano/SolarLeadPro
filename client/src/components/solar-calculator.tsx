@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calculator, Send, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { trackFormSubmission } from "@/lib/referralTracking";
 
 const calculatorSchema = z.object({
   monthlyBill: z.string().min(1, "Monthly bill is required"),
@@ -115,6 +116,8 @@ export default function SolarCalculator() {
   };
 
   const onSubmitLead = (data: LeadFormData) => {
+    // Track form submission for affiliate referrals
+    trackFormSubmission('calculator_lead', data);
     leadMutation.mutate(data);
   };
 
@@ -218,33 +221,40 @@ export default function SolarCalculator() {
 
               {/* Results Display */}
               {showResults && calculationResults && (
-                <Card className="mt-8 bg-gradient-to-r from-solar-green to-teal-500 text-white">
+                <Card className="mt-8 bg-gradient-to-r from-solar-blue to-solar-teal border-2 border-solar-turquoise">
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-3xl font-bold">
+                    <div className="text-center mb-6">
+                      <h3 className="text-2xl font-bold text-white mb-2">🎉 Your Solar Savings Estimate</h3>
+                      <p className="text-solar-turquoise font-medium">Based on your inputs, here's what you could save:</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-6 text-center">
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <div className="text-4xl font-bold text-white mb-2">
                           ${calculationResults.monthlySavings}
                         </div>
-                        <div className="text-sm text-green-100">Monthly Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise">Monthly Savings</div>
                       </div>
-                      <div>
-                        <div className="text-3xl font-bold">
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <div className="text-4xl font-bold text-white mb-2">
                           ${calculationResults.yearOneSavings}
                         </div>
-                        <div className="text-sm text-green-100">First Year Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise">First Year Savings</div>
                       </div>
-                      <div>
-                        <div className="text-3xl font-bold">
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <div className="text-4xl font-bold text-white mb-2">
                           ${calculationResults.twentyYearSavings}
                         </div>
-                        <div className="text-sm text-green-100">20-Year Savings</div>
+                        <div className="text-sm font-medium text-solar-turquoise">20-Year Savings</div>
                       </div>
-                      <div>
-                        <div className="text-3xl font-bold">
+                      <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                        <div className="text-4xl font-bold text-white mb-2">
                           {calculationResults.systemSize}
                         </div>
-                        <div className="text-sm text-green-100">Recommended Size</div>
+                        <div className="text-sm font-medium text-solar-turquoise">Recommended Size</div>
                       </div>
+                    </div>
+                    <div className="mt-6 text-center">
+                      <p className="text-white font-medium">💡 Ready to start saving? Get your free consultation below!</p>
                     </div>
                   </CardContent>
                 </Card>

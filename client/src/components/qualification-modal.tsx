@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { trackFormSubmission } from "@/lib/referralTracking";
 
 const qualificationSchema = z.object({
   monthlyBill: z.string().min(1, "Please select your monthly bill range"),
@@ -59,6 +60,10 @@ export default function QualificationModal({ isOpen, onClose }: QualificationMod
       return response.json();
     },
     onSuccess: () => {
+      // Track form submission for affiliate referrals
+      const formData = form.getValues();
+      trackFormSubmission('qualification', formData);
+      
       // Simple qualification logic
       const monthlyBill = parseInt(form.getValues("monthlyBill") || "0");
       const homeOwnership = form.getValues("homeOwnership");

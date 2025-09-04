@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Clock, CalendarCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { trackFormSubmission } from "@/lib/referralTracking";
 
 const consultationSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -69,6 +70,8 @@ export default function ContactSection() {
   });
 
   const onSubmit = (data: ConsultationData) => {
+    // Track form submission for affiliate referrals
+    trackFormSubmission('consultation', data);
     consultationMutation.mutate(data);
   };
 

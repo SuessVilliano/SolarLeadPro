@@ -129,11 +129,18 @@ export const messages = pgTable("messages", {
 export const insertLeadSchema = createInsertSchema(leads).omit({
   id: true,
   createdAt: true,
+}).extend({
+  monthlyBill: z.union([z.string(), z.number(), z.null()]).transform((val) => val ? String(val) : null).optional(),
+  homeSize: z.union([z.string(), z.number(), z.null()]).transform((val) => val ? Number(val) : null).optional(),
 });
 
 export const insertSolarCalculationSchema = createInsertSchema(solarCalculations).omit({
   id: true,
   createdAt: true,
+}).extend({
+  monthlyBill: z.union([z.string(), z.number()]).transform(String),
+  homeSize: z.union([z.string(), z.number()]).transform(Number),
+  leadId: z.number().optional(),
 });
 
 export const insertConsultationSchema = createInsertSchema(consultations).omit({
