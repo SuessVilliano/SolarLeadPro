@@ -1,15 +1,32 @@
 import { type Express, type Request, type Response, type NextFunction } from "express";
-import session from "express-session";
 import { storage } from "./storage";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
-// Simple password hashing (production should use bcrypt)
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SESSION_SECRET || "liv8-solar-jwt-secret-change-in-production";
+
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
 function verifyPassword(password: string, hash: string): boolean {
   return hashPassword(password) === hash;
+}
+
+function createToken(user: { id: number; email: string; firstName: string; lastName: string; role: string }): string {
+  return jwt.sign(
+    { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role },
+    JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+}
+
+function verifyToken(token: string): any | null {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch {
+    return null;
+  }
 }
 
 export interface AuthUser {
@@ -20,27 +37,28 @@ export interface AuthUser {
   role: string;
 }
 
-declare module "express-session" {
-  interface SessionData {
-    userId?: number;
-    userRole?: string;
+// Auto-seed admin user into storage (needed for Vercel serverless where MemStorage resets)
+async function ensureAdminExists() {
+  try {
+    const existing = await storage.getUserByEmail("admin@liv8solar.com");
+    if (!existing) {
+      await storage.createUser({
+        email: "admin@liv8solar.com",
+        hashedPassword: hashPassword("admin123"),
+        firstName: "LIV8",
+        lastName: "Admin",
+        role: "admin",
+      });
+      console.log("Admin user auto-seeded");
+    }
+  } catch (e) {
+    console.error("Failed to auto-seed admin:", e);
   }
 }
 
 export function setupAuth(app: Express) {
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || "liv8-solar-session-secret-change-me",
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-      },
-    })
-  );
+  // Auto-seed admin on startup
+  ensureAdminExists();
 
   // Register
   app.post("/api/auth/register", async (req: Request, res: Response) => {
@@ -58,7 +76,6 @@ export function setupAuth(app: Express) {
         return;
       }
 
-      // Only allow client and rep self-registration; admin must be created by admin
       const allowedRoles = ["client", "rep"];
       const userRole = allowedRoles.includes(role) ? role : "rep";
 
@@ -70,15 +87,14 @@ export function setupAuth(app: Express) {
         role: userRole,
       });
 
-      req.session.userId = user.id;
-      req.session.userRole = user.role;
-
+      const token = createToken(user);
       res.json({
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        token,
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -96,6 +112,9 @@ export function setupAuth(app: Express) {
         return;
       }
 
+      // Auto-seed admin if needed (handles Vercel cold starts)
+      await ensureAdminExists();
+
       const user = await storage.getUserByEmail(email);
       if (!user || !verifyPassword(password, user.hashedPassword)) {
         res.status(401).json({ message: "Invalid email or password" });
@@ -107,15 +126,14 @@ export function setupAuth(app: Express) {
         return;
       }
 
-      req.session.userId = user.id;
-      req.session.userRole = user.role;
-
+      const token = createToken(user);
       res.json({
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        token,
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -123,83 +141,87 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Logout
-  app.post("/api/auth/logout", (req: Request, res: Response) => {
-    req.session.destroy((err) => {
-      if (err) {
-        res.status(500).json({ message: "Logout failed" });
-        return;
-      }
-      res.json({ message: "Logged out" });
-    });
+  // Logout (client-side just clears the token)
+  app.post("/api/auth/logout", (_req: Request, res: Response) => {
+    res.json({ message: "Logged out" });
   });
 
-  // Get current user
+  // Get current user from JWT token
   app.get("/api/auth/me", async (req: Request, res: Response) => {
-    if (!req.session.userId) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(401).json({ message: "Not authenticated" });
       return;
     }
 
-    const user = await storage.getUserById(req.session.userId);
-    if (!user) {
-      res.status(401).json({ message: "User not found" });
+    const token = authHeader.split(" ")[1];
+    const payload = verifyToken(token);
+    if (!payload) {
+      res.status(401).json({ message: "Invalid or expired token" });
       return;
     }
 
     res.json({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
+      id: payload.id,
+      email: payload.email,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      role: payload.role,
     });
   });
 
-  // Seed admin account if none exists
+  // Seed admin (backwards compatibility)
   app.post("/api/auth/seed-admin", async (_req: Request, res: Response) => {
     try {
-      const existing = await storage.getUserByEmail("admin@liv8solar.com");
-      if (existing) {
-        res.json({ message: "Admin already exists" });
-        return;
-      }
-
-      const admin = await storage.createUser({
-        email: "admin@liv8solar.com",
-        hashedPassword: hashPassword("admin123"),
-        firstName: "LIV8",
-        lastName: "Admin",
-        role: "admin",
-      });
-
-      res.json({ message: "Admin created", email: admin.email });
+      await ensureAdminExists();
+      res.json({ message: "Admin ready" });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed admin" });
     }
   });
 }
 
-// Middleware to require authentication
+// Middleware to require authentication via JWT
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
-  if (!req.session.userId) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ message: "Authentication required" });
     return;
   }
+
+  const token = authHeader.split(" ")[1];
+  const payload = verifyToken(token);
+  if (!payload) {
+    res.status(401).json({ message: "Invalid or expired token" });
+    return;
+  }
+
+  (req as any).user = payload;
   next();
 }
 
 // Middleware to require specific role
 export function requireRole(...roles: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.session.userId) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       res.status(401).json({ message: "Authentication required" });
       return;
     }
-    if (!req.session.userRole || !roles.includes(req.session.userRole)) {
+
+    const token = authHeader.split(" ")[1];
+    const payload = verifyToken(token);
+    if (!payload) {
+      res.status(401).json({ message: "Invalid or expired token" });
+      return;
+    }
+
+    if (!roles.includes(payload.role)) {
       res.status(403).json({ message: "Insufficient permissions" });
       return;
     }
+
+    (req as any).user = payload;
     next();
   };
 }
