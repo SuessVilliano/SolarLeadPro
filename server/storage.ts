@@ -1,4 +1,4 @@
-import { leads, consultations, solarCalculations, users, projects, installationUpdates, contracts, tasks, messages, type Lead, type InsertLead, type SolarCalculation, type InsertSolarCalculation, type Consultation, type InsertConsultation, type User, type InsertUser, type Project, type InsertProject, type InstallationUpdate, type InsertInstallationUpdate, type Contract, type InsertContract, type Task, type InsertTask, type Message, type InsertMessage } from "@shared/schema";
+import { leads, consultations, solarCalculations, users, projects, installationUpdates, contracts, tasks, messages, type Lead, type InsertLead, type SolarCalculation, type InsertSolarCalculation, type Consultation, type InsertConsultation, type User, type InsertUser, type Project, type InsertProject, type InstallationUpdate, type InsertInstallationUpdate, type Contract, type InsertContract, type Task, type InsertTask, type Message, type InsertMessage } from "../shared/schema";
 
 export interface IStorage {
   // Lead management

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Phone } from "lucide-react";
+import { Menu, Phone, LogIn } from "lucide-react";
 
 interface NavigationProps {
   onOpenQualification: () => void;
@@ -31,9 +31,9 @@ export default function Navigation({ onOpenQualification }: NavigationProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <span className="text-2xl font-poppins font-bold text-solar-teal">
+            <a href="/" className="text-2xl font-poppins font-bold text-solar-teal">
               LIV8Solar
-            </span>
+            </a>
           </div>
 
           {/* Desktop Navigation */}
@@ -58,6 +58,12 @@ export default function Navigation({ onOpenQualification }: NavigationProps) {
             >
               <Phone className="w-4 h-4 mr-2" />
               813-441-9686
+            </a>
+            <a href="/login">
+              <Button variant="outline" size="sm" className="text-solar-teal border-solar-teal hover:bg-solar-teal hover:text-white">
+                <LogIn className="w-4 h-4 mr-1" />
+                Login
+              </Button>
             </a>
             <Button
               onClick={onOpenQualification}
@@ -93,6 +99,12 @@ export default function Navigation({ onOpenQualification }: NavigationProps) {
                   >
                     <Phone className="w-5 h-5 mr-2" />
                     813-441-9686
+                  </a>
+                  <a href="/login" className="w-full">
+                    <Button variant="outline" className="w-full text-solar-teal border-solar-teal hover:bg-solar-teal hover:text-white">
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Login / Sign Up
+                    </Button>
                   </a>
                   <Button
                     onClick={onOpenQualification}

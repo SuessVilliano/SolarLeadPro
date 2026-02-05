@@ -1,5 +1,6 @@
 import express from "express";
 import type { Request, Response } from "express";
+import session from "express-session";
 import { storage } from "../server/storage";
 import { insertLeadSchema, insertSolarCalculationSchema, insertConsultationSchema } from "../shared/schema";
 import { sendEmail, emailTemplates } from "../server/sendgrid";
@@ -9,10 +10,80 @@ import { sendToTaskMagic, formatLeadForTaskMagic } from "../server/taskMagicWebh
 import { getSolarInsightsForAddress, getSolarInsightsForBill, isGoogleSolarConfigured } from "../server/googleSolarApi";
 import { createProspect, getProject, getProjectSummary, getSystemDetails, isOpenSolarConfigured, listProjects } from "../server/openSolarApi";
 import { z } from "zod";
+import crypto from "crypto";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Session setup for auth
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'liv8-solar-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, httpOnly: true, maxAge: 24 * 60 * 60 * 1000 },
+}));
+
+// Auth routes
+app.post("/api/auth/register", async (req: Request, res: Response) => {
+  try {
+    const { email, password, firstName, lastName, role } = req.body;
+    if (!email || !password || !firstName || !lastName) {
+      res.status(400).json({ message: "All fields are required" }); return;
+    }
+    const existing = await storage.getUserByEmail(email);
+    if (existing) { res.status(409).json({ message: "Email already registered" }); return; }
+    const allowedRoles = ["client", "rep"];
+    const userRole = allowedRoles.includes(role) ? role : "client";
+    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
+    const user = await storage.createUser({ email, firstName, lastName, role: userRole, hashedPassword, isActive: true });
+    (req.session as any).userId = user.id;
+    (req.session as any).userRole = user.role;
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role });
+  } catch (error) {
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Registration failed" });
+  }
+});
+
+app.post("/api/auth/login", async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) { res.status(400).json({ message: "Email and password are required" }); return; }
+    const user = await storage.getUserByEmail(email);
+    if (!user) { res.status(401).json({ message: "Invalid credentials" }); return; }
+    const hashedPassword = crypto.createHash("sha256").update(password).digest("hex");
+    if (user.hashedPassword !== hashedPassword) { res.status(401).json({ message: "Invalid credentials" }); return; }
+    (req.session as any).userId = user.id;
+    (req.session as any).userRole = user.role;
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Login failed" });
+  }
+});
+
+app.post("/api/auth/logout", (req: Request, res: Response) => {
+  req.session.destroy(() => { res.json({ message: "Logged out" }); });
+});
+
+app.get("/api/auth/me", async (req: Request, res: Response) => {
+  const userId = (req.session as any)?.userId;
+  if (!userId) { res.status(401).json({ message: "Not authenticated" }); return; }
+  const user = await storage.getUserById(userId);
+  if (!user) { res.status(401).json({ message: "User not found" }); return; }
+  res.json({ id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role });
+});
+
+app.post("/api/auth/seed-admin", async (_req: Request, res: Response) => {
+  try {
+    const existing = await storage.getUserByEmail("admin@liv8solar.com");
+    if (existing) { res.json({ message: "Admin already exists", id: existing.id }); return; }
+    const hashedPassword = crypto.createHash("sha256").update("admin123").digest("hex");
+    const admin = await storage.createUser({ email: "admin@liv8solar.com", firstName: "Admin", lastName: "LIV8", role: "admin", hashedPassword, isActive: true });
+    res.json({ message: "Admin seeded", id: admin.id });
+  } catch (error) { res.status(500).json({ message: "Failed to seed admin" }); }
+});
 
 // Create lead
 app.post("/api/leads", async (req: Request, res: Response) => {
@@ -22,42 +93,46 @@ app.post("/api/leads", async (req: Request, res: Response) => {
 
     console.log("NEW LEAD SUBMITTED:", { id: lead.id, name: `${lead.firstName} ${lead.lastName}` });
 
-    // Send email notification
-    const emailTemplate = emailTemplates.newLead(lead);
-    await sendEmail({
-      to: 'info@liv8solar.com',
-      from: 'noreply@liv8solar.com',
-      subject: emailTemplate.subject,
-      html: emailTemplate.html,
-      text: emailTemplate.text,
-    });
-
-    // Track Push Lap referral
-    const pushLapAPI = getPushLapAPI();
-    if (pushLapAPI) {
-      const affiliateId = extractAffiliateId(req);
-      await pushLapAPI.trackReferral({
-        affiliateId,
-        name: `${lead.firstName} ${lead.lastName}`,
-        email: lead.email,
-        referredUserExternalId: lead.id.toString(),
-        plan: 'solar_lead',
-        status: 'new_referral',
+    // === All external integrations below are non-blocking ===
+    try {
+      const emailTemplate = emailTemplates.newLead(lead);
+      await sendEmail({
+        to: 'info@liv8solar.com',
+        from: 'noreply@liv8solar.com',
+        subject: emailTemplate.subject,
+        html: emailTemplate.html,
+        text: emailTemplate.text,
       });
-    }
+    } catch (e) { console.error('Email failed (non-blocking):', e); }
 
-    // Send to Google Sheets
-    const sheetsData = formatLeadForGoogleSheets(lead);
-    await sendToGoogleSheets(sheetsData);
+    try {
+      const pushLapAPI = getPushLapAPI();
+      if (pushLapAPI) {
+        const affiliateId = extractAffiliateId(req);
+        await pushLapAPI.trackReferral({
+          affiliateId,
+          name: `${lead.firstName} ${lead.lastName}`,
+          email: lead.email,
+          referredUserExternalId: lead.id.toString(),
+          plan: 'solar_lead',
+          status: 'new_referral',
+        });
+      }
+    } catch (e) { console.error('PushLap failed (non-blocking):', e); }
 
-    // Send to TaskMagic webhook
-    const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
-    await sendToTaskMagic(taskMagicData);
+    try {
+      const sheetsData = formatLeadForGoogleSheets(lead);
+      await sendToGoogleSheets(sheetsData);
+    } catch (e) { console.error('Google Sheets failed (non-blocking):', e); }
 
-    // Auto-create prospect in OpenSolar
+    try {
+      const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
+      await sendToTaskMagic(taskMagicData);
+    } catch (e) { console.error('TaskMagic failed (non-blocking):', e); }
+
     let openSolarProjectId: string | undefined;
-    if (isOpenSolarConfigured()) {
-      try {
+    try {
+      if (isOpenSolarConfigured()) {
         const osProject = await createProspect({
           firstName: lead.firstName,
           lastName: lead.lastName,
@@ -70,10 +145,8 @@ app.post("/api/leads", async (req: Request, res: Response) => {
           leadSource: lead.leadSource || 'LIV8 Solar Website',
         });
         openSolarProjectId = osProject.id.toString();
-      } catch (osError) {
-        console.error('OpenSolar prospect creation failed:', osError);
       }
-    }
+    } catch (e) { console.error('OpenSolar failed (non-blocking):', e); }
 
     res.json({ ...lead, openSolarProjectId });
   } catch (error) {

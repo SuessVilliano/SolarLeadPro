@@ -124,9 +124,9 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2024 LIV8Solar. All rights reserved. Licensed Solar Consultant.
+            © {new Date().getFullYear()} LIV8Solar. All rights reserved. Licensed Solar Consultant.
           </div>
-          <div className="flex space-x-6 text-gray-400 text-sm">
+          <div className="flex flex-wrap gap-4 md:gap-6 text-gray-400 text-sm">
             <a href="#" className="hover:text-solar-turquoise transition-colors">
               Privacy Policy
             </a>
@@ -136,8 +136,11 @@ export default function Footer() {
             <a href="#" className="hover:text-solar-turquoise transition-colors">
               Licensing
             </a>
-            <a href="/admin" className="hover:text-solar-turquoise transition-colors">
-              Admin Dashboard
+            <a href="/login" className="hover:text-solar-turquoise transition-colors font-medium">
+              Customer Login
+            </a>
+            <a href="/login" className="hover:text-solar-turquoise transition-colors font-medium">
+              Rep Portal
             </a>
           </div>
         </div>

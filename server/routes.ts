@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertLeadSchema, insertSolarCalculationSchema, insertConsultationSchema } from "@shared/schema";
+import { insertLeadSchema, insertSolarCalculationSchema, insertConsultationSchema } from "../shared/schema";
 import { sendEmail, emailTemplates } from "./sendgrid";
 import { getPushLapAPI, extractAffiliateId, trackProjectSale } from "./pushLap";
 import { sendToGoogleSheets, formatLeadForGoogleSheets } from "./googleSheets";
@@ -16,9 +16,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const leadData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(leadData);
-      
+
       // Log the new lead submission for tracking
-      console.log("🌟 NEW LEAD SUBMITTED:", {
+      console.log("NEW LEAD SUBMITTED:", {
         id: lead.id,
         name: `${lead.firstName} ${lead.lastName}`,
         email: lead.email,
@@ -26,50 +26,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         source: lead.leadSource,
         timestamp: new Date().toISOString(),
       });
-      
-      // Send email notification
-      const emailTemplate = emailTemplates.newLead(lead);
-      await sendEmail({
-        to: 'info@liv8solar.com', // Replace with your notification email
-        from: 'noreply@liv8solar.com', // Replace with your from email
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-        text: emailTemplate.text,
-      });
-      
-      // Track Push Lap referral with affiliate ID from request
-      const pushLapAPI = getPushLapAPI();
-      if (pushLapAPI) {
-        const affiliateId = extractAffiliateId(req);
-        await pushLapAPI.trackReferral({
-          affiliateId: affiliateId,
-          name: `${lead.firstName} ${lead.lastName}`,
-          email: lead.email,
-          referredUserExternalId: lead.id.toString(),
-          plan: 'solar_lead',
-          status: 'new_referral',
-        });
-        
-        // Log referral attempt for debugging
-        console.log('🔗 Push Lap referral tracked:', {
-          affiliateId,
-          leadEmail: lead.email,
-          leadId: lead.id
-        });
-      }
-      
-      // Send to Google Sheets
-      const sheetsData = formatLeadForGoogleSheets(lead);
-      await sendToGoogleSheets(sheetsData);
-      
-      // Send to TaskMagic webhook
-      const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
-      await sendToTaskMagic(taskMagicData);
 
-      // Auto-create prospect in OpenSolar
+      // === All external integrations below are non-blocking ===
+      // If any fail, the lead is still saved and returned to the client.
+
+      try {
+        const emailTemplate = emailTemplates.newLead(lead);
+        await sendEmail({
+          to: 'info@liv8solar.com',
+          from: 'noreply@liv8solar.com',
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          text: emailTemplate.text,
+        });
+      } catch (e) { console.error('Email notification failed (non-blocking):', e); }
+
+      try {
+        const pushLapAPI = getPushLapAPI();
+        if (pushLapAPI) {
+          const affiliateId = extractAffiliateId(req);
+          await pushLapAPI.trackReferral({
+            affiliateId: affiliateId,
+            name: `${lead.firstName} ${lead.lastName}`,
+            email: lead.email,
+            referredUserExternalId: lead.id.toString(),
+            plan: 'solar_lead',
+            status: 'new_referral',
+          });
+        }
+      } catch (e) { console.error('PushLap tracking failed (non-blocking):', e); }
+
+      try {
+        const sheetsData = formatLeadForGoogleSheets(lead);
+        await sendToGoogleSheets(sheetsData);
+      } catch (e) { console.error('Google Sheets export failed (non-blocking):', e); }
+
+      try {
+        const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
+        await sendToTaskMagic(taskMagicData);
+      } catch (e) { console.error('TaskMagic webhook failed (non-blocking):', e); }
+
       let openSolarProjectId: string | undefined;
-      if (isOpenSolarConfigured()) {
-        try {
+      try {
+        if (isOpenSolarConfigured()) {
           const osProject = await createProspect({
             firstName: lead.firstName,
             lastName: lead.lastName,
@@ -82,11 +81,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             leadSource: lead.leadSource || 'LIV8 Solar Website',
           });
           openSolarProjectId = osProject.id.toString();
-          console.log('OpenSolar prospect created:', { openSolarId: osProject.id, leadId: lead.id });
-        } catch (osError) {
-          console.error('OpenSolar prospect creation failed (non-blocking):', osError);
         }
-      }
+      } catch (e) { console.error('OpenSolar prospect creation failed (non-blocking):', e); }
 
       res.json({ ...lead, openSolarProjectId });
     } catch (error) {
