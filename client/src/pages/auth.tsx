@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Sun, LogIn, UserPlus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Sun, LogIn, UserPlus, Shield, Briefcase, User } from "lucide-react";
 
 export default function AuthPage() {
   const { login, register } = useAuth();
@@ -24,6 +25,19 @@ export default function AuthPage() {
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regRole, setRegRole] = useState("rep");
+
+  const handleDemoLogin = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      toast({ title: "Welcome!" });
+      navigate("/dashboard");
+    } catch (err: any) {
+      toast({ title: "Demo login failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +111,29 @@ export default function AuthPage() {
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
+
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><Separator /></div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">Demo Accounts</span>
+                    </div>
+                  </div>
+                  <div className="grid gap-2 mt-4">
+                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
+                      onClick={() => handleDemoLogin("admin@liv8solar.com", "admin123")}>
+                      <Shield className="w-4 h-4 mr-2 text-red-500" /> Admin Demo
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
+                      onClick={() => handleDemoLogin("demo@liv8solar.com", "demo123")}>
+                      <Briefcase className="w-4 h-4 mr-2 text-blue-500" /> Solar Rep Demo
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
+                      onClick={() => handleDemoLogin("client@liv8solar.com", "client123")}>
+                      <User className="w-4 h-4 mr-2 text-green-500" /> Client Demo
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </TabsContent>
 
