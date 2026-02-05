@@ -50,7 +50,7 @@ export default function Home() {
       <HowItWorks />
       <SolarCalculator />
       <ServicesOverview />
-      <WhyChooseUs />
+      <WhyChooseUs onOpenQualification={handleOpenQualification} />
       <Testimonials />
       <SolarRepOpportunity />
       <ContactSection />

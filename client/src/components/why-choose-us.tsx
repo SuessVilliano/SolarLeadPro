@@ -10,7 +10,11 @@ import {
   CalendarCheck
 } from "lucide-react";
 
-export default function WhyChooseUs() {
+interface WhyChooseUsProps {
+  onOpenQualification?: () => void;
+}
+
+export default function WhyChooseUs({ onOpenQualification }: WhyChooseUsProps) {
   const differentiators = [
     {
       icon: Handshake,
@@ -82,6 +86,14 @@ export default function WhyChooseUs() {
           <Button
             size="lg"
             className="bg-solar-orange hover:bg-yellow-500 text-white px-8 py-4 text-lg font-bold transform hover:scale-105 transition-all shadow-lg"
+            onClick={() => {
+              if (onOpenQualification) {
+                onOpenQualification();
+              } else {
+                const contactSection = document.getElementById('contact');
+                if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
           >
             <CalendarCheck className="w-5 h-5 mr-2" />
             Schedule Free Consultation
