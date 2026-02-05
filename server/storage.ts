@@ -157,6 +157,190 @@ export class MemStorage implements IStorage {
       consultation => consultation.leadId === leadId
     );
   }
+
+  // User management
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.currentUserId++;
+    const user: User = {
+      ...insertUser,
+      leadId: insertUser.leadId || null,
+      repId: insertUser.repId || null,
+      isActive: insertUser.isActive ?? true,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(u => u.email === email);
+  }
+
+  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, ...updates, updatedAt: new Date() };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  async getUsersByRole(role: string): Promise<User[]> {
+    if (!role) return Array.from(this.users.values());
+    return Array.from(this.users.values()).filter(u => u.role === role);
+  }
+
+  // Project management
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const id = this.currentProjectId++;
+    const project: Project = {
+      ...insertProject,
+      leadId: insertProject.leadId || null,
+      clientId: insertProject.clientId || null,
+      repId: insertProject.repId || null,
+      systemSize: insertProject.systemSize || null,
+      estimatedValue: insertProject.estimatedValue || null,
+      contractSignedDate: insertProject.contractSignedDate || null,
+      installationStatus: insertProject.installationStatus || "pending",
+      installationProgress: insertProject.installationProgress || 0,
+      expectedCompletionDate: insertProject.expectedCompletionDate || null,
+      actualCompletionDate: insertProject.actualCompletionDate || null,
+      openSolarProjectId: insertProject.openSolarProjectId || null,
+      notes: insertProject.notes || null,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.projects.set(id, project);
+    return project;
+  }
+
+  async getProjectById(id: number): Promise<Project | undefined> {
+    return this.projects.get(id);
+  }
+
+  async getProjectsByClientId(clientId: number): Promise<Project[]> {
+    return Array.from(this.projects.values()).filter(p => p.clientId === clientId);
+  }
+
+  async getProjectsByRepId(repId: number): Promise<Project[]> {
+    return Array.from(this.projects.values()).filter(p => p.repId === repId);
+  }
+
+  async updateProject(id: number, updates: Partial<InsertProject>): Promise<Project | undefined> {
+    const project = this.projects.get(id);
+    if (!project) return undefined;
+    const updated = { ...project, ...updates, updatedAt: new Date() };
+    this.projects.set(id, updated);
+    return updated;
+  }
+
+  // Installation updates
+  async createInstallationUpdate(insertUpdate: InsertInstallationUpdate): Promise<InstallationUpdate> {
+    const id = this.currentInstallationUpdateId++;
+    const update: InstallationUpdate = {
+      ...insertUpdate,
+      updatedBy: insertUpdate.updatedBy || null,
+      message: insertUpdate.message || null,
+      id,
+      createdAt: new Date(),
+    };
+    this.installationUpdates.set(id, update);
+    return update;
+  }
+
+  async getInstallationUpdatesByProjectId(projectId: number): Promise<InstallationUpdate[]> {
+    return Array.from(this.installationUpdates.values()).filter(u => u.projectId === projectId);
+  }
+
+  // Contracts
+  async createContract(insertContract: InsertContract): Promise<Contract> {
+    const id = this.currentContractId++;
+    const contract: Contract = {
+      ...insertContract,
+      documentUrl: insertContract.documentUrl || null,
+      signedDate: insertContract.signedDate || null,
+      status: insertContract.status || "pending",
+      totalAmount: insertContract.totalAmount || null,
+      id,
+      createdAt: new Date(),
+    };
+    this.contracts.set(id, contract);
+    return contract;
+  }
+
+  async getContractsByProjectId(projectId: number): Promise<Contract[]> {
+    return Array.from(this.contracts.values()).filter(c => c.projectId === projectId);
+  }
+
+  // Tasks
+  async createTask(insertTask: InsertTask): Promise<Task> {
+    const id = this.currentTaskId++;
+    const task: Task = {
+      ...insertTask,
+      repId: insertTask.repId || null,
+      leadId: insertTask.leadId || null,
+      projectId: insertTask.projectId || null,
+      description: insertTask.description || null,
+      priority: insertTask.priority || "medium",
+      status: insertTask.status || "pending",
+      dueDate: insertTask.dueDate || null,
+      completedAt: insertTask.completedAt || null,
+      id,
+      createdAt: new Date(),
+    };
+    this.tasks.set(id, task);
+    return task;
+  }
+
+  async getTasksByRepId(repId: number): Promise<Task[]> {
+    return Array.from(this.tasks.values()).filter(t => t.repId === repId);
+  }
+
+  async getTasksByLeadId(leadId: number): Promise<Task[]> {
+    return Array.from(this.tasks.values()).filter(t => t.leadId === leadId);
+  }
+
+  async updateTask(id: number, updates: Partial<InsertTask>): Promise<Task | undefined> {
+    const task = this.tasks.get(id);
+    if (!task) return undefined;
+    const updated = { ...task, ...updates };
+    this.tasks.set(id, updated);
+    return updated;
+  }
+
+  // Messages
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const id = this.currentMessageId++;
+    const message: Message = {
+      ...insertMessage,
+      senderId: insertMessage.senderId || null,
+      receiverId: insertMessage.receiverId || null,
+      projectId: insertMessage.projectId || null,
+      subject: insertMessage.subject || null,
+      isRead: insertMessage.isRead ?? false,
+      id,
+      createdAt: new Date(),
+    };
+    this.messages.set(id, message);
+    return message;
+  }
+
+  async getMessagesByProjectId(projectId: number): Promise<Message[]> {
+    return Array.from(this.messages.values()).filter(m => m.projectId === projectId);
+  }
+
+  async getMessagesBetweenUsers(senderId: number, receiverId: number): Promise<Message[]> {
+    return Array.from(this.messages.values()).filter(
+      m => (m.senderId === senderId && m.receiverId === receiverId) ||
+           (m.senderId === receiverId && m.receiverId === senderId)
+    );
+  }
 }
 
 export const storage = new MemStorage();
