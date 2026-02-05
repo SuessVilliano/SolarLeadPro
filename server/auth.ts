@@ -37,6 +37,22 @@ export interface AuthUser {
   role: string;
 }
 
+// Hardcoded demo accounts - these bypass storage entirely so they always work
+const DEMO_ACCOUNTS: Record<string, { password: string; id: number; firstName: string; lastName: string; role: string }> = {
+  "admin@liv8solar.com": { password: "admin123", id: 9001, firstName: "LIV8", lastName: "Admin", role: "admin" },
+  "demo@liv8solar.com":  { password: "demo123",  id: 9002, firstName: "Demo", lastName: "Rep",   role: "rep" },
+  "client@liv8solar.com":{ password: "client123", id: 9003, firstName: "Demo", lastName: "Client",role: "client" },
+};
+
+function tryDemoLogin(email: string, password: string): { id: number; email: string; firstName: string; lastName: string; role: string; token: string } | null {
+  const demo = DEMO_ACCOUNTS[email];
+  if (demo && demo.password === password) {
+    const user = { id: demo.id, email, firstName: demo.firstName, lastName: demo.lastName, role: demo.role };
+    return { ...user, token: createToken(user) };
+  }
+  return null;
+}
+
 // Auto-seed admin user into storage (needed for Vercel serverless where MemStorage resets)
 async function ensureAdminExists() {
   try {
@@ -112,9 +128,14 @@ export function setupAuth(app: Express) {
         return;
       }
 
-      // Auto-seed admin if needed (handles Vercel cold starts)
-      await ensureAdminExists();
+      // Check hardcoded demo accounts first (always works, no storage needed)
+      const demoResult = tryDemoLogin(email, password);
+      if (demoResult) {
+        res.json(demoResult);
+        return;
+      }
 
+      // Fall through to storage-based auth for real accounts
       const user = await storage.getUserByEmail(email);
       if (!user || !verifyPassword(password, user.hashedPassword)) {
         res.status(401).json({ message: "Invalid email or password" });
