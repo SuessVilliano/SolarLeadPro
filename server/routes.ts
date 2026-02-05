@@ -6,6 +6,8 @@ import { sendEmail, emailTemplates } from "./sendgrid";
 import { getPushLapAPI, extractAffiliateId, trackProjectSale } from "./pushLap";
 import { sendToGoogleSheets, formatLeadForGoogleSheets } from "./googleSheets";
 import { sendToTaskMagic, formatLeadForTaskMagic } from "./taskMagicWebhook";
+import { getSolarInsightsForAddress, getSolarInsightsForBill, isGoogleSolarConfigured } from "./googleSolarApi";
+import { createProspect, getProject, getProjectSummary, getSystemDetails, isOpenSolarConfigured, listProjects } from "./openSolarApi";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -63,8 +65,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send to TaskMagic webhook
       const taskMagicData = formatLeadForTaskMagic(lead, 'lead_submission');
       await sendToTaskMagic(taskMagicData);
-      
-      res.json(lead);
+
+      // Auto-create prospect in OpenSolar
+      let openSolarProjectId: string | undefined;
+      if (isOpenSolarConfigured()) {
+        try {
+          const osProject = await createProspect({
+            firstName: lead.firstName,
+            lastName: lead.lastName,
+            email: lead.email,
+            phone: lead.phone,
+            address: lead.address || undefined,
+            monthlyBill: lead.monthlyBill?.toString(),
+            homeSize: lead.homeSize || undefined,
+            roofType: lead.roofType || undefined,
+            leadSource: lead.leadSource || 'LIV8 Solar Website',
+          });
+          openSolarProjectId = osProject.id.toString();
+          console.log('OpenSolar prospect created:', { openSolarId: osProject.id, leadId: lead.id });
+        } catch (osError) {
+          console.error('OpenSolar prospect creation failed (non-blocking):', osError);
+        }
+      }
+
+      res.json({ ...lead, openSolarProjectId });
     } catch (error) {
       console.error("Failed to create lead:", error);
       if (error instanceof z.ZodError) {
@@ -445,6 +469,229 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(messages);
     } catch (error) {
       res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  // ============================================
+  // Google Solar API Routes
+  // ============================================
+
+  // Get solar insights for an address (uses Google Solar API + Geocoding)
+  app.post('/api/solar-insights', async (req, res) => {
+    try {
+      const { address } = req.body;
+      if (!address || typeof address !== 'string') {
+        res.status(400).json({ message: 'Address is required' });
+        return;
+      }
+
+      if (!isGoogleSolarConfigured()) {
+        res.status(503).json({ message: 'Google Solar API not configured', configured: false });
+        return;
+      }
+
+      const insights = await getSolarInsightsForAddress(address);
+      res.json(insights);
+    } catch (error: any) {
+      console.error('Solar insights error:', error);
+      res.status(500).json({ message: error.message || 'Failed to get solar insights' });
+    }
+  });
+
+  // Get solar insights matched to a specific monthly bill amount
+  app.post('/api/solar-insights/bill-match', async (req, res) => {
+    try {
+      const { address, monthlyBill } = req.body;
+      if (!address || typeof address !== 'string') {
+        res.status(400).json({ message: 'Address is required' });
+        return;
+      }
+      if (!monthlyBill || isNaN(Number(monthlyBill))) {
+        res.status(400).json({ message: 'Valid monthly bill amount is required' });
+        return;
+      }
+
+      if (!isGoogleSolarConfigured()) {
+        res.status(503).json({ message: 'Google Solar API not configured', configured: false });
+        return;
+      }
+
+      const insights = await getSolarInsightsForBill(address, Number(monthlyBill));
+      res.json(insights);
+    } catch (error: any) {
+      console.error('Solar bill-match insights error:', error);
+      res.status(500).json({ message: error.message || 'Failed to get solar insights' });
+    }
+  });
+
+  // Check if Google Solar API is available
+  app.get('/api/solar-insights/status', (_req, res) => {
+    res.json({ configured: isGoogleSolarConfigured() });
+  });
+
+  // ============================================
+  // OpenSolar API Routes
+  // ============================================
+
+  // Check OpenSolar integration status
+  app.get('/api/opensolar/status', (_req, res) => {
+    res.json({ configured: isOpenSolarConfigured() });
+  });
+
+  // Get OpenSolar project details by opensolar project ID
+  app.get('/api/opensolar/projects/:projectId', async (req, res) => {
+    try {
+      if (!isOpenSolarConfigured()) {
+        res.status(503).json({ message: 'OpenSolar not configured', configured: false });
+        return;
+      }
+
+      const projectId = parseInt(req.params.projectId);
+      if (isNaN(projectId)) {
+        res.status(400).json({ message: 'Invalid project ID' });
+        return;
+      }
+
+      const project = await getProject(projectId);
+      res.json(project);
+    } catch (error: any) {
+      console.error('OpenSolar get project error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch OpenSolar project' });
+    }
+  });
+
+  // Get full project summary with systems, panels, batteries, etc.
+  app.get('/api/opensolar/projects/:projectId/summary', async (req, res) => {
+    try {
+      if (!isOpenSolarConfigured()) {
+        res.status(503).json({ message: 'OpenSolar not configured', configured: false });
+        return;
+      }
+
+      const projectId = parseInt(req.params.projectId);
+      if (isNaN(projectId)) {
+        res.status(400).json({ message: 'Invalid project ID' });
+        return;
+      }
+
+      const summary = await getProjectSummary(projectId);
+      res.json(summary);
+    } catch (error: any) {
+      console.error('OpenSolar project summary error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch project summary' });
+    }
+  });
+
+  // Get system details for an OpenSolar project
+  app.get('/api/opensolar/projects/:projectId/systems', async (req, res) => {
+    try {
+      if (!isOpenSolarConfigured()) {
+        res.status(503).json({ message: 'OpenSolar not configured', configured: false });
+        return;
+      }
+
+      const projectId = parseInt(req.params.projectId);
+      if (isNaN(projectId)) {
+        res.status(400).json({ message: 'Invalid project ID' });
+        return;
+      }
+
+      const systems = await getSystemDetails(projectId);
+      res.json(systems);
+    } catch (error: any) {
+      console.error('OpenSolar systems error:', error);
+      res.status(500).json({ message: error.message || 'Failed to fetch system details' });
+    }
+  });
+
+  // List all OpenSolar projects (admin)
+  app.get('/api/opensolar/projects', async (_req, res) => {
+    try {
+      if (!isOpenSolarConfigured()) {
+        res.status(503).json({ message: 'OpenSolar not configured', configured: false });
+        return;
+      }
+
+      const projects = await listProjects();
+      res.json(projects);
+    } catch (error: any) {
+      console.error('OpenSolar list projects error:', error);
+      res.status(500).json({ message: error.message || 'Failed to list OpenSolar projects' });
+    }
+  });
+
+  // Manually create an OpenSolar prospect from an existing lead
+  app.post('/api/opensolar/prospects', async (req, res) => {
+    try {
+      if (!isOpenSolarConfigured()) {
+        res.status(503).json({ message: 'OpenSolar not configured', configured: false });
+        return;
+      }
+
+      const { leadId } = req.body;
+      if (!leadId) {
+        res.status(400).json({ message: 'leadId is required' });
+        return;
+      }
+
+      const lead = await storage.getLeadById(parseInt(leadId));
+      if (!lead) {
+        res.status(404).json({ message: 'Lead not found' });
+        return;
+      }
+
+      const osProject = await createProspect({
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        email: lead.email,
+        phone: lead.phone,
+        address: lead.address || undefined,
+        monthlyBill: lead.monthlyBill?.toString(),
+        homeSize: lead.homeSize || undefined,
+        roofType: lead.roofType || undefined,
+        leadSource: lead.leadSource || 'LIV8 Solar Website',
+      });
+
+      res.json({
+        message: 'OpenSolar prospect created',
+        openSolarProjectId: osProject.id,
+        openSolarIdentifier: osProject.identifier,
+        leadId: lead.id,
+      });
+    } catch (error: any) {
+      console.error('OpenSolar manual prospect creation error:', error);
+      res.status(500).json({ message: error.message || 'Failed to create OpenSolar prospect' });
+    }
+  });
+
+  // OpenSolar webhook receiver (for receiving updates FROM OpenSolar)
+  app.post('/api/webhooks/opensolar', async (req, res) => {
+    try {
+      const payload = req.body;
+      console.log('OpenSolar webhook received:', JSON.stringify(payload).substring(0, 200));
+
+      // Process different event types from OpenSolar
+      const eventType = payload.event_type;
+      const modelName = payload.model_name;
+
+      if (modelName === 'project' && eventType === 'UPDATE') {
+        // Sync project status updates back to our system
+        const osProjectId = payload.model_pk?.toString();
+        if (osProjectId) {
+          // Find matching local project and update it
+          const taskMagicData = formatLeadForTaskMagic(
+            { id: 0, firstName: 'OpenSolar', lastName: 'Update', email: '', phone: '', createdAt: new Date().toISOString() },
+            'opensolar_project_update',
+            { openSolarProjectId: osProjectId, ...payload }
+          );
+          await sendToTaskMagic(taskMagicData);
+        }
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error('OpenSolar webhook processing error:', error);
+      res.status(500).json({ message: 'Webhook processing failed' });
     }
   });
 
