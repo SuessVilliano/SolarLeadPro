@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sun, LogIn, UserPlus, Shield, Briefcase, User } from "lucide-react";
 
 export default function AuthPage() {
-  const { login, register } = useAuth();
+  const { login, demoLogin, register } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -26,17 +26,10 @@ export default function AuthPage() {
   const [regPassword, setRegPassword] = useState("");
   const [regRole, setRegRole] = useState("rep");
 
-  const handleDemoLogin = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      await login(email, password);
-      toast({ title: "Welcome!" });
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast({ title: "Demo login failed", description: err.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleDemoLogin = (role: "admin" | "rep" | "client") => {
+    demoLogin(role);
+    toast({ title: "Welcome!" });
+    navigate("/dashboard");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -120,16 +113,16 @@ export default function AuthPage() {
                     </div>
                   </div>
                   <div className="grid gap-2 mt-4">
-                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
-                      onClick={() => handleDemoLogin("admin@liv8solar.com", "admin123")}>
+                    <Button variant="outline" size="sm" className="w-full justify-start"
+                      onClick={() => handleDemoLogin("admin")}>
                       <Shield className="w-4 h-4 mr-2 text-red-500" /> Admin Demo
                     </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
-                      onClick={() => handleDemoLogin("demo@liv8solar.com", "demo123")}>
+                    <Button variant="outline" size="sm" className="w-full justify-start"
+                      onClick={() => handleDemoLogin("rep")}>
                       <Briefcase className="w-4 h-4 mr-2 text-blue-500" /> Solar Rep Demo
                     </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start" disabled={isLoading}
-                      onClick={() => handleDemoLogin("client@liv8solar.com", "client123")}>
+                    <Button variant="outline" size="sm" className="w-full justify-start"
+                      onClick={() => handleDemoLogin("client")}>
                       <User className="w-4 h-4 mr-2 text-green-500" /> Client Demo
                     </Button>
                   </div>
