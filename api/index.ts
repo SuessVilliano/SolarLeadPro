@@ -69,6 +69,11 @@ app.use(express.urlencoded({ extended: false }));
 // Auto-seed admin on startup
 ensureAdminExists();
 
+// Health check endpoint
+app.get("/api/health", (_req: Request, res: Response) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 // Auth routes (JWT-based, stateless for Vercel serverless)
 app.post("/api/auth/register", async (req: Request, res: Response) => {
   try {
@@ -305,6 +310,13 @@ app.post('/api/opensolar/prospects', async (req, res) => {
 app.post('/api/webhooks/opensolar', async (req, res) => {
   try { const p = req.body; if (p.model_name === 'project' && p.event_type === 'UPDATE' && p.model_pk) { await sendToTaskMagic(formatLeadForTaskMagic({ id: 0, firstName: 'OpenSolar', lastName: 'Update', email: '', phone: '', createdAt: new Date().toISOString() }, 'opensolar_project_update', { openSolarProjectId: p.model_pk.toString(), ...p })); } res.json({ received: true }); }
   catch { res.status(500).json({ message: 'Failed' }); }
+});
+
+// Global error handler (must be after all routes)
+app.use((err: any, _req: any, res: any, next: any) => {
+  console.error("Unhandled error:", err);
+  if (res.headersSent) return next(err);
+  res.status(500).json({ message: "Internal server error" });
 });
 
 export default app;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,11 +61,33 @@ interface Stats {
   revenueThisMonth: number;
 }
 
+// Map sidebar URL path segments to tab values
+const pathToTab: Record<string, string> = {
+  "": "leads",
+  "leads": "leads",
+  "team": "users",
+  "analytics": "analytics",
+  "settings": "settings",
+  "projects": "leads",
+};
+
+const tabToPath: Record<string, string> = {
+  "leads": "/dashboard/leads",
+  "users": "/dashboard/team",
+  "analytics": "/dashboard/analytics",
+  "settings": "/dashboard/settings",
+};
+
 export default function AdminDashboard() {
+  const [location, navigate] = useLocation();
   const [googleSheetsUrl, setGoogleSheetsUrl] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Derive active tab from URL
+  const pathSegment = location.replace(/^\/dashboard\/?/, '').split('/')[0] || '';
+  const activeTab = pathToTab[pathSegment] || 'leads';
 
   const { data: leads, isLoading: leadsLoading } = useQuery<Lead[]>({
     queryKey: ['/api/leads'],
@@ -287,7 +310,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="leads" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(tab) => { const path = tabToPath[tab]; if (path) navigate(path); }} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-md">
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
@@ -530,14 +553,14 @@ export default function AdminDashboard() {
                   <div>
                     <h4 className="font-medium mb-2">Email Notifications</h4>
                     <p className="text-sm text-gray-600 mb-3">
-                      Current status: {process.env.SENDGRID_API_KEY ? '✅ Configured' : '❌ Not configured'}
+                      SendGrid email notifications are configured server-side via environment variables.
                     </p>
                   </div>
 
                   <div>
                     <h4 className="font-medium mb-2">Push Lap Tracking</h4>
                     <p className="text-sm text-gray-600 mb-3">
-                      Affiliate tracking status: {process.env.PUSHLAP_API_KEY ? '✅ Active' : '❌ Setup required'}
+                      Affiliate tracking is configured server-side via environment variables.
                     </p>
                   </div>
                 </div>

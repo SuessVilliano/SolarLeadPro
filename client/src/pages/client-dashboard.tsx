@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -84,7 +85,30 @@ interface OpenSolarSummary {
   };
 }
 
+// Map sidebar URL path segments to tab values
+const clientPathToTab: Record<string, string> = {
+  "": "overview",
+  "solar": "solar-details",
+  "documents": "contracts",
+  "messages": "messages",
+  "progress": "progress",
+};
+
+const clientTabToPath: Record<string, string> = {
+  "overview": "/dashboard",
+  "solar-details": "/dashboard/solar",
+  "contracts": "/dashboard/documents",
+  "messages": "/dashboard/messages",
+  "progress": "/dashboard/progress",
+};
+
 export default function ClientDashboard() {
+  const [location, navigate] = useLocation();
+
+  // Derive active tab from URL
+  const pathSegment = location.replace(/^\/dashboard\/?/, '').split('/')[0] || '';
+  const activeTab = clientPathToTab[pathSegment] || 'overview';
+
   // Mock user ID - in real app this would come from auth context
   const clientId = 1;
 
@@ -131,7 +155,7 @@ export default function ClientDashboard() {
         </div>
 
         {activeProject ? (
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={(tab) => { const path = clientTabToPath[tab]; if (path) navigate(path); }} className="space-y-6">
             <TabsList className="grid grid-cols-5 w-full max-w-xl">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="solar-details">Solar Details</TabsTrigger>
