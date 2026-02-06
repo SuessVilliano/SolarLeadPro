@@ -172,19 +172,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString(),
       });
       
-      // Send email notification for calculation
-      const emailTemplate = emailTemplates.solarCalculation(calculation);
-      await sendEmail({
-        to: 'info@liv8solar.com', // Replace with your notification email
-        from: 'noreply@liv8solar.com', // Replace with your from email
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-        text: emailTemplate.text,
-      });
-      
-      // Send calculation to TaskMagic webhook
-      const taskMagicCalcData = formatLeadForTaskMagic({ id: 0, firstName: 'Anonymous', lastName: 'User', email: 'unknown@email.com', phone: 'unknown', createdAt: new Date().toISOString() }, 'solar_calculation', calculation);
-      await sendToTaskMagic(taskMagicCalcData);
+      // Send email notification for calculation (non-blocking)
+      try {
+        const emailTemplate = emailTemplates.solarCalculation(calculation);
+        await sendEmail({
+          to: 'info@liv8solar.com',
+          from: 'noreply@liv8solar.com',
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          text: emailTemplate.text,
+        });
+      } catch (e) { console.error('Calc email failed (non-blocking):', e); }
+
+      // Send calculation to TaskMagic webhook (non-blocking)
+      try {
+        const taskMagicCalcData = formatLeadForTaskMagic({ id: 0, firstName: 'Anonymous', lastName: 'User', email: 'unknown@email.com', phone: 'unknown', createdAt: new Date().toISOString() }, 'solar_calculation', calculation);
+        await sendToTaskMagic(taskMagicCalcData);
+      } catch (e) { console.error('Calc TaskMagic failed (non-blocking):', e); }
       
       res.json(calculation);
     } catch (error) {
@@ -215,20 +219,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString(),
       });
       
-      // Send email notification for consultation
+      // Send email notification for consultation (non-blocking)
       if (lead) {
-        const emailTemplate = emailTemplates.consultation(consultation, lead);
-        await sendEmail({
-          to: 'info@liv8solar.com', // Replace with your notification email
-          from: 'noreply@liv8solar.com', // Replace with your from email
-          subject: emailTemplate.subject,
-          html: emailTemplate.html,
-          text: emailTemplate.text,
-        });
-        
-        // Send consultation to TaskMagic webhook
-        const taskMagicConsultData = formatLeadForTaskMagic(lead, 'consultation_scheduled', null);
-        await sendToTaskMagic(taskMagicConsultData);
+        try {
+          const emailTemplate = emailTemplates.consultation(consultation, lead);
+          await sendEmail({
+            to: 'info@liv8solar.com',
+            from: 'noreply@liv8solar.com',
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+            text: emailTemplate.text,
+          });
+        } catch (e) { console.error('Consultation email failed (non-blocking):', e); }
+
+        try {
+          const taskMagicConsultData = formatLeadForTaskMagic(lead, 'consultation_scheduled', null);
+          await sendToTaskMagic(taskMagicConsultData);
+        } catch (e) { console.error('Consultation TaskMagic failed (non-blocking):', e); }
       }
       
       res.json(consultation);

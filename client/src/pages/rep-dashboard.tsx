@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -60,11 +61,32 @@ interface Project {
   expectedCompletionDate?: string;
 }
 
+// Map sidebar URL path segments to tab values
+const repPathToTab: Record<string, string> = {
+  "": "leads",
+  "leads": "leads",
+  "tasks": "tasks",
+  "projects": "projects",
+  "messages": "messages",
+};
+
+const repTabToPath: Record<string, string> = {
+  "leads": "/dashboard/leads",
+  "tasks": "/dashboard/tasks",
+  "projects": "/dashboard/projects",
+  "messages": "/dashboard/messages",
+};
+
 export default function RepDashboard() {
+  const [location, navigate] = useLocation();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Derive active tab from URL
+  const pathSegment = location.replace(/^\/dashboard\/?/, '').split('/')[0] || '';
+  const activeTab = repPathToTab[pathSegment] || 'leads';
 
   // Mock rep ID - in real app this would come from auth context
   const repId = 1;
@@ -211,7 +233,7 @@ export default function RepDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="leads" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(tab) => { const path = repTabToPath[tab]; if (path) navigate(path); }} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-md">
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
